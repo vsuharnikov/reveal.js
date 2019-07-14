@@ -1,49 +1,153 @@
 <!doctype html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+  <title>Shapeless Intro</title>
 
-		<link rel="stylesheet" href="css/reset.css">
-		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/reveal.css">
+  <link rel="stylesheet" href="css/theme/black.css">
 
-		<!-- Theme used for syntax highlighting of code -->
-		<link rel="stylesheet" href="lib/css/monokai.css">
+  <!-- Theme used for syntax highlighting of code -->
+  <link rel="stylesheet" href="lib/css/monokai.css">
 
-		<!-- Printing and PDF exports -->
-		<script>
-			var link = document.createElement( 'link' );
-			link.rel = 'stylesheet';
-			link.type = 'text/css';
-			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
-			document.getElementsByTagName( 'head' )[0].appendChild( link );
-		</script>
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
-			</div>
-		</div>
+  <!-- Printing and PDF exports -->
+  <script>
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+    document.getElementsByTagName('head')[0].appendChild(link);
+  </script>
+</head>
+<body>
+<!--
+TODO: https://www.scala-exercises.org/shapeless/polymorphic_function_values
+Editor > Code Style > Formatter Control
+-->
+<div class="reveal">
+  <div class="slides">
+    <section>Shapeless Intro</section>
+    <section>
+      <section>
+        <h2>HList</h2>
 
-		<script src="js/reveal.js"></script>
+        <!-- @formatter:off -->
+        <pre>
+          <code class="scala" data-trim data-noescape>
+case class Person(name: String, age: Byte)
 
-		<script>
-			// More info about config & dependencies:
-			// - https://github.com/hakimel/reveal.js#configuration
-			// - https://github.com/hakimel/reveal.js#dependencies
-			Reveal.initialize({
-				dependencies: [
-					{ src: 'plugin/markdown/marked.js' },
-					{ src: 'plugin/markdown/markdown.js' },
-					{ src: 'plugin/notes/notes.js', async: true },
-					{ src: 'plugin/highlight/highlight.js', async: true }
-				]
-			});
-		</script>
-	</body>
+import shapeless._
+type ShapelessPerson = String :: Byte :: HNil
+
+import shapeless.{Generic, HList}
+val toHList = Generic[Person].to(_)
+
+val hPerson = toHList(Person("Victor", 25))
+println(hPerson)
+// Victor :: 25 :: HNil
+          </code>
+        </pre>
+        <!-- @formatter:on -->
+      </section>
+
+      <section>
+        <h3>Types</h3>
+
+        <!-- @formatter:off -->
+        <pre>
+          <code class="scala" data-trim data-noescape>
+val hPerson = toHList(Person("Victor", 25))
+
+type ShapelessPerson = String :: Byte :: HNil
+println(hPerson.isInstanceOf[ShapelessPerson])
+// true
+
+type ShapelessNonPerson = Double :: Long :: HNil
+println(hPerson.isInstanceOf[ShapelessNonPerson])
+// true
+
+val m = Map(1 -> "foo")
+println(m.isInstanceOf[Map[Double, Long]])
+// true
+          </code>
+        </pre>
+        <!-- @formatter:on -->
+      </section>
+
+      <section>
+        <h3>Construction/comparison</h3>
+
+        <!-- @formatter:off -->
+        <pre>
+          <code class="scala" data-trim data-noescape>
+val hPerson1 = toHList(Person("Victor", 25))
+val hPerson2 = "Victor" :: (25: Byte) :: HNil
+
+println(hPerson1 == hPerson2)
+// true
+
+Generic[Person].from(hPerson1) // Person("Victor", 25)
+          </code>
+        </pre>
+        <!-- @formatter:on -->
+      </section>
+
+      <section>
+        <h3>HList summary</h3>
+
+        <ul>
+          <li>isInstanceOf doesn't work</li>
+          <li>Works similar to List on intuition level</li>
+        </ul>
+      </section>
+    </section>
+
+
+    <section>
+      <section>
+        <h2>Coproduct</h2>
+
+        <!-- @formatter:off -->
+        <pre>
+          <code class="scala" data-trim data-noescape>
+import shapeless._
+
+sealed trait Transaction
+case class Tx(from: Address, to: Address, amount: Long)
+case class Data(addr: Address, key: String, value: String)
+
+type ShapelessTransaction = Tx :+: Data
+          </code>
+        </pre>
+      <!-- @formatter:on -->
+      </section>
+    </section>
+
+
+    <section data-markdown>
+      ## F
+    </section>
+  </div>
+</div>
+
+<script src="js/reveal.js"></script>
+
+<script>
+  // More info about config & dependencies:
+  // - https://github.com/hakimel/reveal.js#configuration
+  // - https://github.com/hakimel/reveal.js#dependencies
+  Reveal.initialize({
+    history: true,
+    dependencies: [
+      {src: 'plugin/markdown/marked.js'},
+      {src: 'plugin/markdown/markdown.js'},
+      {src: 'plugin/notes/notes.js', async: true},
+      {src: 'plugin/highlight/highlight.js', async: true}
+    ]
+  });
+</script>
+</body>
 </html>
